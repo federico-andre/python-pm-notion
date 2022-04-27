@@ -1,13 +1,13 @@
 import requests
-import secrets
 import json
 from datetime import date
+from decouple import config
 
 URL = "https://api.notion.com/v1"
 
 HEADERS = {
-    "Authorization": secrets.INTEGRATION_KEY,
-    "Notion-Version": secrets.NOTION_VERSION,
+    "Authorization": config('INTEGRATION_KEY'),
+    "Notion-Version": config('NOTION_VERSION'),
     "Content-Type": "application/json"
 }
 
@@ -31,9 +31,13 @@ def getPasswords(sito = None):
 
     query = json.dumps(query)
 
-    resp = requests.post(url = f"{URL}/databases/{secrets.DATABASE_ID}/query", headers = HEADERS, data = query)
+    resp = requests.post(url = f"{URL}/databases/{config('DATABASE_ID')}/query", headers = HEADERS, data = query)
     data = resp.json()
 
+    if "object" in data and data["object"] == "error":
+        print(data["message"])
+        return None
+        
     return data["results"]
 
 def aggiungiPagina(sito, user, password):
@@ -44,7 +48,7 @@ def aggiungiPagina(sito, user, password):
         return f"Esistono già credenziali per il sito: {sito}"
 
     to_add = {
-        "parent": { "database_id": secrets.DATABASE_ID },
+        "parent": { "database_id": config('DATABASE_ID') },
         "properties": {
             "Site": {
                 "title": [

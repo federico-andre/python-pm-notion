@@ -1,6 +1,7 @@
 import click
 import notion
 from cryptography.fernet import Fernet
+from decouple import config
 
 @click.group()
 def cli():
@@ -34,7 +35,7 @@ def getPassword(sito):
             click.echo("-------------------------------------------------------------------------------")
 
 def load_key():
-    return open("secret.key", "rb").read()
+    return config('SECRET_KEY')
 
 def encrypt(message):
     key = load_key()
